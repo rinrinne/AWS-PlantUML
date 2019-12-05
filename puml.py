@@ -83,9 +83,10 @@ class InheritingConfigParser(configparser.ConfigParser):
 
 
 class PUML:
-    def __init__(self, image_path, output_root_dir, conf):
+    def __init__(self, image_path, image_root_dir, output_root_dir, conf):
         self.conf = conf
         self.image_path = os.path.abspath(image_path)
+        self.image_root_dir = os.path.abspath(image_root_dir)
         self.output_root_dir = os.path.abspath(output_root_dir)
         self._output_dir = None
         self._categorized_name = None
@@ -100,9 +101,12 @@ class PUML:
     @property
     def categorized_name(self):
         if self._categorized_name is None:
-            basename = os.path.splitext(os.path.basename(self.image_path))[0]
-            parts = [re.sub(r'[^\w]', '_', p) for p in basename.split('_')]
-            if parts[-1] == 'LARGE':
+            relpath = os.path.relpath(self.image_path, start=self.image_root_dir)
+            parts = [re.sub(r'[^\w]', '_', p) for p in relpath.split('/')[:-1]]
+            basename = os.path.splitext(os.path.basename(self.image_path))[0].split('@')[0]
+            parts += [re.sub(r'[^\w]', '_', p) for p in basename.split('_')]
+            if parts[-1] == 'light_bg' or parts[-1] == 'dark_bg':
+                parts[-1] = parts[-1].split('_')[1]
                 self._categorized_name = parts[:-1], '_'.join(parts[-2:])
             else:
                 self._categorized_name = parts, parts[-1]
@@ -452,7 +456,7 @@ def get_pumls(conf, icons_path, output_path, icon_ext='.png'):
     output_path = os.path.abspath(output_path)
 
     icons = find_images(icons_path, icon_ext)
-    pumls = [PUML(p, output_path, conf) for p in icons]
+    pumls = [PUML(p, os.path.abspath(icons_path), output_path, conf) for p in icons]
     set_unique_names(filter_duplicate_images(pumls))
     return pumls
 
