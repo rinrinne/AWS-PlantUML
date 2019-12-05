@@ -1,5 +1,5 @@
 ifeq (,$(ICON_ROOT))
-	$(error ICON_ROOT is empty)
+$(error ICON_ROOT is empty)
 endif
 
 all:
