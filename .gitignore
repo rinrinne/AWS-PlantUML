@@ -2,8 +2,7 @@
 **/__pycache__/
 resources/*
 test/*
-dist/**/*.png
-dist/test.puml
-dist/file-map.yml
+/dist
 .idea/
+/.vscode/
 *.sw[po]
